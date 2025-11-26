@@ -1,14 +1,44 @@
-    // src/index.ts
-    import express from 'express';
+import http from 'http';
+import https from 'https';
+import { createApp } from './app.js';
+import { LoggerFactory } from './core/factories/logger.factory.js';
+import { getServerConfig } from './config/server.config.js';
 
-    const app = express();
-    const port = process.env['port]'] || 3000;
+const logger = LoggerFactory.getLogger();
+const app = createApp();
+const config = getServerConfig();
 
-    app.get('/', (req, res) => {
-      console.debug(`enter get with req ${req}`)
-      res.send('Hello from TypeScript API!');
-    });
+/**
+ * Start the HTTP or HTTPS server based on configuration
+ */
+const server = config.useHttps
+  ? https.createServer(config.httpsOptions!, app)
+  : http.createServer(app);
 
-    app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
-    });
+server.listen(config.port, () => {
+  const protocol = config.useHttps ? 'https' : 'http';
+  logger.info(`\n✓ Server running on ${protocol}://localhost:${config.port}`);
+  logger.info(`  Mode: ${config.useHttps ? 'HTTPS (Production/Testing)' : 'HTTP (Development)'}`);
+  logger.info('Available endpoints:');
+  logger.info('  GET  /');
+  logger.info('  POST /api/v1/auth/login');
+  logger.info('  POST /api/v1/auth/logout');
+  logger.info('  POST /api/v1/auth/authorize\n');
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM signal received: closing server');
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  logger.info('\nSIGINT signal received: closing server');
+  server.close(() => {
+    logger.info('Server closed');
+    process.exit(0);
+  });
+});
