@@ -1,5 +1,8 @@
 import fs from 'fs';
+import * as os from 'os';
 import path from 'path';
+import type { IntegrityMode } from './integrity.types.js';
+
 
 /**
  * Server configuration for HTTP/HTTPS setup
@@ -11,6 +14,9 @@ export interface ServerConfig {
     key: Buffer;
     cert: Buffer;
   };
+  localStoragePath: string;
+  storageProvider: string;
+  integrityMode: IntegrityMode
 }
 
 /**
@@ -18,16 +24,22 @@ export interface ServerConfig {
  * @returns Server configuration object
  */
 export function getServerConfig(): ServerConfig {
-  const port = Number(process.env['PORT']) || 3000;
-  const useHttps = process.env['USE_HTTPS'] === 'true';
+  const PORT = Number(process.env['PORT']) || 3000;
+  const USE_HTTPS = process.env['USE_HTTPS'] === 'true';
+  const LOCAL_STORAGE_PATH = process.env['LOCAL_STORAGE_PATH'] || os.tmpdir();
+  const STORAGE_PROVIDER = process.env['STORAGE_PROVIDER'] || 'LOCAL'
+  const INTEGRITY_MODE = (process.env['INTEGRITY_CHECK'] || 'SIZE') as IntegrityMode;
 
   const config: ServerConfig = {
-    port,
-    useHttps,
+    port: PORT,
+    useHttps: USE_HTTPS,
+    localStoragePath: LOCAL_STORAGE_PATH,
+    storageProvider: STORAGE_PROVIDER,
+    integrityMode: INTEGRITY_MODE
   };
 
   // Load HTTPS certificates if HTTPS is enabled
-  if (useHttps) {
+  if (USE_HTTPS) {
     const certPath = process.env['SSL_CERT_PATH'] || './certs/server.cert';
     const keyPath = process.env['SSL_KEY_PATH'] || './certs/server.key';
 
