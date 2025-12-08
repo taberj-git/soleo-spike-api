@@ -1,27 +1,26 @@
 import type {
-  IAuthenticator,
-  IAuthResponse,
+  IAuthentication,
+  IAuthenticatonResponse,
   ILoginResponse,
   ILogoutResponse,
-} from '../../../core/interfaces/auth.interface.js';
-import type { ILogger } from '../../../core/interfaces/logger.interface.js';
-import type { IAuthService } from '../interfaces/auth.interface.js';
-import { stringify } from 'flatted';
-import type { Request } from 'express';
+  IAuthenticationService,
+} from "../../../core/interfaces/auth.interface.js";
+import type { ILogger } from "../../../core/interfaces/logger.interface.js";
+import { toError } from "../../../core/util/error.util.js";
 
 /**
  * Authentication service handling business logic
  */
-export class AuthService implements IAuthService {
-  authenticator: IAuthenticator;
+export class AuthenticatorService implements IAuthenticationService {
+  authenticator: IAuthentication;
   logger: ILogger;
 
   /**
    * Constructor
    * @param _logger - Logger instance
-   * @param _authenticator - Authenticator instance
+   * @param _authenticator - Authenticator instance (provider specific)
    */
-  constructor(_logger: ILogger, _authenticator: IAuthenticator) {
+  constructor(_logger: ILogger, _authenticator: IAuthentication) {
     this.authenticator = _authenticator;
     this.logger = _logger;
   }
@@ -31,12 +30,12 @@ export class AuthService implements IAuthService {
    * @param req - Express request object
    * @returns Promise<ILoginResponse>
    */
-  login = async (req: Request): Promise<ILoginResponse> => {
-    this.logger.trace(`enter AuthService.login with ${stringify(req.body)}`);
+  login = async (
+    username: string,
+    password: string
+  ): Promise<ILoginResponse> => {
+    this.logger.trace(`enter AuthService.login with username ${username}`);
 
-    // may need to do some sort of cyber security check here.
-
-    const { username, password } = req.body;
     let response: ILoginResponse;
     try {
       response = (await this.authenticator.login(
@@ -44,50 +43,39 @@ export class AuthService implements IAuthService {
         password
       )) as ILoginResponse;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Exit AuthService.login caught an error:', error.message);
-        throw error;
-      } else {
-        this.logger.error(
-          `Exit AuthService.login an unexpected error occurred: ${String(error)}`
-        );
-        throw new Error(
-          `Exit AuthService.login an unexpected error occurred: ${String(error)}`
-        );
-      }
+      const err = toError(error); //convert to Error object
+      this.logger.error(
+        "Exit AuthenticatorService.login caught an error:",
+        err.message
+      );
+      throw err;
     }
 
-    this.logger.trace('exit AuthService.login');
+    this.logger.trace("exit AuthService.login");
     return response;
   };
 
   /**
    * Process logout request
-   * @param req - Express request object
+   * @param userId
    * @returns Promise<ILogoutResponse>
    */
-  async logout(req: Request): Promise<ILogoutResponse> {
-    this.logger.trace(`enter AuthService.logout with ${stringify(req.body)}`);
+  async logout(userId: string): Promise<ILogoutResponse> {
+    this.logger.trace(`enter AuthService.logout with userId ${userId}`);
 
     let response: ILogoutResponse;
     try {
-      const userId = (req.headers['user-id'] as string) || 'unknown';
       response = (await this.authenticator.logout(userId)) as ILogoutResponse;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Exit AuthService.logout caught an error:', error.message);
-        throw error;
-      } else {
-        this.logger.error(
-          `Exit AuthService.logout an unexpected error occurred: ${String(error)}`
-        );
-        throw new Error(
-          `Exit AuthService.logout an unexpected error occurred: ${String(error)}`
-        );
-      }
+      const err = toError(error); //convert to Error object
+      this.logger.error(
+        "Exit AuthenticatorService.logout caught an error:",
+        err.message
+      );
+      throw err;
     }
 
-    this.logger.trace('exit AuthService.logout');
+    this.logger.trace("exit AuthService.logout");
     return response;
   }
 
@@ -96,36 +84,28 @@ export class AuthService implements IAuthService {
    * @param req - Express request object
    * @returns Promise<IAuthResponse>
    */
-  async authenticate(req: Request): Promise<IAuthResponse> {
-    this.logger.trace(`enter AuthService.authenticate with ${stringify(req.body)}`);
+  async authenticate(
+    token: string,
+    userId: string
+  ): Promise<IAuthenticatonResponse> {
+    this.logger.trace(`enter AuthService.authenticate for ${userId}`);
 
-    const token = req.headers['authorization']?.replace('Bearer ', '') || '';
-    const userId = (req.headers['user-id'] as string) || 'unknown';
-    let response: IAuthResponse;
-
+    let response: IAuthenticatonResponse;
     try {
       response = (await this.authenticator.authenticate(
         token,
         userId
-      )) as IAuthResponse;
+      )) as IAuthenticatonResponse;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error(
-          'Exit AuthService.authenticate caught an error:',
-          error.message
-        );
-        throw error;
-      } else {
-        this.logger.error(
-          `Exit AuthService.authenticate an unexpected error occurred: ${String(error)}`
-        );
-        throw new Error(
-          `Exit AuthService.authenticate an unexpected error occurred: ${String(error)}`
-        );
-      }
+      const err = toError(error); //convert to Error object
+      this.logger.error(
+        "Exit AuthenticatorService.authenticate caught an error:",
+        err.message
+      );
+      throw err;
     }
 
-    this.logger.trace('exit AuthService.authenticate');
+    this.logger.trace("exit AuthService.authenticate");
     return response;
   }
 }

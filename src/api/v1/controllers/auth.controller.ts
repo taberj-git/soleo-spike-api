@@ -1,21 +1,24 @@
-import type { Request } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import type {
-  IAuthResponse,
+  IAuthenticatonResponse,
   ILoginResponse,
   ILogoutResponse,
+  IAuthenticationController,
+  IAuthenticationService
 } from '../../../core/interfaces/auth.interface.js';
-import type { IAuthController, IAuthService } from '../interfaces/auth.interface.js';
 import type { ILogger } from '../../../core/interfaces/logger.interface.js';
 import { stringify } from 'flatted';
+import { toError } from '../../../core/util/error.util.js';
 
 /**
- * Authentication controller handling HTTP requests
+ * Authentication controller handling login/logout/etc requests.  Used by the router to 
+ * move requests to the service 
  */
-export class AuthController implements IAuthController {
-  private authService: IAuthService;
+export class AuthenticatorController implements IAuthenticationController {
+  private authService: IAuthenticationService;
   private logger: ILogger;
 
-  constructor(_logger: ILogger, _authService: IAuthService) {
+  constructor(_logger: ILogger, _authService: IAuthenticationService) {
     this.authService = _authService;
     this.logger = _logger;
   }
@@ -25,28 +28,24 @@ export class AuthController implements IAuthController {
    * @param req - Express request object
    * @returns Promise<ILoginResponse>
    */
-  login = async (req: Request): Promise<ILoginResponse> => {
+  login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     this.logger.trace(`enter AuthController.login with ${stringify(req.body)}`);
 
     let response: ILoginResponse;
-    try {
-      response = (await this.authService.login(req)) as ILoginResponse;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Exit AuthController.login caught an error:', error.message);
-        throw error;
-      } else {
-        this.logger.error(
-          `Exit AuthController.login an unexpected error occurred: ${String(error)}`
-        );
-        throw new Error(
-          `Exit AuthController.login an unexpected error occurred: ${String(error)}`
-        );
-      }
-    }
+    const { username, password } = req.body;
 
+    //TODO may need to add cyber security checks, etc before passing to service
+    //TODO does using dedicated objects for json back from service/provider make sense?
+    try {
+      response = (await this.authService.login(username, password)) as ILoginResponse;
+      res.cookie('auth_token', response.token, { httpOnly: true });
+      res.status(200).json(response);
+    } catch (error: unknown) {
+      const err = toError(error); //convert to Error object
+      this.logger.error('Exit AuthController.login caught an error:', err.message);
+      next(err);  //push to global error handler
+    }
     this.logger.trace('exit AuthController.login');
-    return response;
   };
 
   /**
@@ -54,24 +53,20 @@ export class AuthController implements IAuthController {
    * @param req - Express request object
    * @returns Promise<ILogoutResponse>
    */
-  logout = async (req: Request): Promise<ILogoutResponse> => {
+  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     this.logger.trace(`enter AuthController.logout with ${stringify(req.body)}`);
 
+    const userId = (req.headers['user-id'] as string) || 'unknown';
     let response: ILogoutResponse;
     try {
-      response = (await this.authService.logout(req)) as ILogoutResponse;
+      response = (await this.authService.logout(userId)) as ILogoutResponse;
+      res.status(200).json(response);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error('Exit AuthController.logout caught an error:', error.message);
-        throw error;
-      } else {
-        throw new Error(
-          `Exit AuthController.logout an unexpected error occurred: ${String(error)}`
-        );
-      }
+      const err = toError(error); //convert to Error object
+      this.logger.error('Exit AuthController.login caught an error:', err.message);
+      next(err);  //push to global error handler
     }
     this.logger.trace('exit AuthController.logout');
-    return response;
   };
 
   /**
@@ -79,29 +74,21 @@ export class AuthController implements IAuthController {
    * @param req - Express request object
    * @returns Promise<IAuthResponse>
    */
-  authenticate = async (req: Request): Promise<IAuthResponse> => {
-    this.logger.trace(
-      `enter AuthController.authenticate(${req.headers['authorization']?.replace('Bearer ', '') || ''})`
-    );
-
-    let response: IAuthResponse;
+  authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    this.logger.trace(`enter AuthController.authenticate`);
+    
+    //may need to add some cyber security code here, ask the guild.
+    const token = req.headers['authorization']?.replace('Bearer ', '') || '';
+    const userId = (req.headers['user-id'] as string) || 'unknown';
+    let response: IAuthenticatonResponse;
     try {
-      response = (await this.authService.authenticate(req)) as IAuthResponse;
+      response = (await this.authService.authenticate(token, userId)) as IAuthenticatonResponse;
+      res.status(200).json(response);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.logger.error(
-          'Exit AuthController.authenticate caught an error:',
-          error.message
-        );
-        throw error;
-      } else {
-        throw new Error(
-          `Exit AuthController.authenticate an unexpected error occurred: ${String(error)}`
-        );
-      }
+      const err = toError(error); //convert to Error object
+      this.logger.error('Exit AuthController.login caught an error:', err.message);
+      next(err);  //push to global error handler
     }
-
     this.logger.trace('exit AuthController.authenticate');
-    return response;
   };
 }

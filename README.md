@@ -160,6 +160,16 @@ curl -X POST http://localhost:3000/api/v1/auth/authorize \
   -H "user-id: 12345" | python3 -m json.tool
 ```
 
+# PRODUCTION NOTES
+## Test Health
+Tests if the api *can* accept connections.     
+Endpoint: /health/live
+
+## Test Readiness
+Tests if the api has all the required connections available 
+
+
+
 # SOFTWARE DEVELOPMENT KIT
 ## Definitions
 ### Routes
