@@ -10,6 +10,7 @@ import { AuthFactory } from "./core/factories/authentication.factory.js";
 import { AuthenticatorService } from "./api/v1/services/auth.service.js";
 import { AuthenticatorController } from "./api/v1/controllers/auth.controller.js";
 import { createAuthRouter } from "./api/v1/routes/auth.routes.js";
+import { createHealthRouter } from "./api/v1/routes/health.routes.js";
 
 const logger = LoggerFactory.getLogger();
 
@@ -56,7 +57,7 @@ export function createApp() {
 
   // Mount health routes - note: these do not use /api/v1
   logger.info("App: Mounting /api/v1/health routes...");
-  const healthRoutes = createAuthRouter(logger, authController);
+  const healthRoutes = createHealthRouter(logger);
   app.use("/health", healthRoutes);
 
   // Mount API v1 authentication routes
