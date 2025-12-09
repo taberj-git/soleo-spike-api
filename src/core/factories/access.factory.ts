@@ -6,13 +6,13 @@ import { getServerConfig } from "../../config/index.js";
 /**
  * Factory for creating authenticator instances
  */
-export class AuthFactory {
+export class AccessFactory {
   /**
    * Get authenticator instance based on AUTH_TYPE environment variable
    * @param logger - Logger instance
    * @returns Authenticator instance
    */
-  static getAuthenticator(logger: ILogger): IAccess {
+  static getAccessProvider(logger: ILogger): IAccess {
    
     const provider = getServerConfig().accessProvider;
 
