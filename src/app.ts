@@ -6,10 +6,10 @@ import express, {
 import cors from "cors";
 import { corsConfig } from "./config/index.js";
 import { LoggerFactory } from "./core/factories/logger.factory.js";
-import { AuthFactory } from "./core/factories/authentication.factory.js";
+import { AuthFactory } from "./core/factories/access.factory.js";
 import { AuthenticatorService } from "./api/v1/services/auth.service.js";
 import { AuthenticatorController } from "./api/v1/controllers/auth.controller.js";
-import { createAuthRouter } from "./api/v1/routes/auth.routes.js";
+import { createAccessRouter } from "./api/v1/routes/access.routes.js";
 import { createHealthRouter } from "./api/v1/routes/health.routes.js";
 
 const logger = LoggerFactory.getLogger();
@@ -62,7 +62,7 @@ export function createApp() {
 
   // Mount API v1 authentication routes
   logger.info("App: Mounting /api/v1/auth routes...");
-  const authRoutes = createAuthRouter(logger, authController);
+  const authRoutes = createAccessRouter(logger, authController);
   app.use("/api/v1/auth", authRoutes);
 
   return app;

@@ -1,18 +1,20 @@
 import type {
-  IAuthentication,
+  IAccess,
+  IAccessService,
+} from "../../../core/interfaces/access.interface.js";
+import type {
   IAuthenticatonResponse,
   ILoginResponse,
-  ILogoutResponse,
-  IAuthenticationService,
-} from "../../../core/interfaces/auth.interface.js";
+  ILogoutResponse
+} from "../interfaces/access.response.interface.js";
 import type { ILogger } from "../../../core/interfaces/logger.interface.js";
 import { toError } from "../../../core/util/error.util.js";
 
 /**
  * Authentication service handling business logic
  */
-export class AuthenticatorService implements IAuthenticationService {
-  authenticator: IAuthentication;
+export class AuthenticatorService implements IAccessService {
+  authenticator: IAccess;
   logger: ILogger;
 
   /**
@@ -20,7 +22,7 @@ export class AuthenticatorService implements IAuthenticationService {
    * @param _logger - Logger instance
    * @param _authenticator - Authenticator instance (provider specific)
    */
-  constructor(_logger: ILogger, _authenticator: IAuthentication) {
+  constructor(_logger: ILogger, _authenticator: IAccess) {
     this.authenticator = _authenticator;
     this.logger = _logger;
   }

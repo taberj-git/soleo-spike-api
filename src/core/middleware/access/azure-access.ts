@@ -1,15 +1,17 @@
 import type {
-  IAuthentication,
+  IAccess,
+} from '../../interfaces/access.interface.js';
+import type {
   IAuthenticatonResponse,
   ILoginResponse,
-  ILogoutResponse,
-} from '../../interfaces/auth.interface.js';
+  ILogoutResponse
+} from "../../../api/v1/interfaces/access.response.interface.js";
 import type { ILogger } from '../../interfaces/logger.interface.js';
 
 /**
  * Azure-based authentication provider
  */
-export class AzureAuthenticator implements IAuthentication {
+export class AzureAuthenticator implements IAccess {
   private logger: ILogger;
 
   constructor(_logger: ILogger) {

@@ -1,11 +1,13 @@
 import type { Request, Response, NextFunction } from 'express';
 import type {
+  IAccessController,
+  IAccessService
+} from '../../../core/interfaces/access.interface.js';
+import type {
   IAuthenticatonResponse,
   ILoginResponse,
-  ILogoutResponse,
-  IAuthenticationController,
-  IAuthenticationService
-} from '../../../core/interfaces/auth.interface.js';
+  ILogoutResponse
+} from "../interfaces/access.response.interface.js";
 import type { ILogger } from '../../../core/interfaces/logger.interface.js';
 import { stringify } from 'flatted';
 import { toError } from '../../../core/util/error.util.js';
@@ -14,11 +16,11 @@ import { toError } from '../../../core/util/error.util.js';
  * Authentication controller handling login/logout/etc requests.  Used by the router to 
  * move requests to the service 
  */
-export class AuthenticatorController implements IAuthenticationController {
-  private authService: IAuthenticationService;
+export class AuthenticatorController implements IAccessController {
+  private authService: IAccessService;
   private logger: ILogger;
 
-  constructor(_logger: ILogger, _authService: IAuthenticationService) {
+  constructor(_logger: ILogger, _authService: IAccessService) {
     this.authService = _authService;
     this.logger = _logger;
   }

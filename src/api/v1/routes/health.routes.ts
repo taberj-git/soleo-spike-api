@@ -1,6 +1,7 @@
 import express from "express";
 import type { ILogger } from "../../../core/interfaces/logger.interface.js";
-import { getErrorMessage } from "../../../core/util/error.util.js";
+import { getErrorMessage } from "../../../core/utilities/error.utility.js";
+
 
 /**
  * Create and configure health router

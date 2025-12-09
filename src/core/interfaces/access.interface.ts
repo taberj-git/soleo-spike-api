@@ -1,67 +1,43 @@
 /**
- * Contains all the interfaces for the authentication chain:
+ * Contains all the interfaces for the access control chain:
  *    Service
  *    Controller
- *    Provider specific authenticator
- *    Reponses for the authenticator behaviors
+ *    Provider specific access control
  * The interfaces allow dependancy injection for testing using mocks, etc.
- * TODO: revisit with architecture to determine if they are all required and if any
- * should move from core to api/v1.
  */
 
 import type { Request, Response, NextFunction } from "express";
-
-/**
- * Login response interface
- */
-export interface ILoginResponse {
-  success: boolean;
-  token: string;
-  userId: string;
-  userType: string;
-}
-
-/**
- * Logout response interface
- */
-export interface ILogoutResponse {
-  success: boolean;
-  userId: string;
-}
-
-/**
- * Authentication response interface
- */
-export interface IAuthenticatonResponse {
-  success: boolean;
-  userId: string;
-}
+import type {
+  ILoginResponse,
+  ILogoutResponse,
+  IAuthenticatonResponse,
+} from "../../api/v1/interfaces/access.response.interface.js";
 
 /**
  * Authentication Controller interface - provides traffic control between router and service
  */
-export interface IAuthenticationController {
+export interface IAccessController {
   /**
-   * 
-   * @param req 
-   * @param res 
-   * @param next 
+   *
+   * @param req
+   * @param res
+   * @param next
    */
   login(req: Request, res: Response, next: NextFunction): Promise<void>;
 
   /**
-   * 
-   * @param req 
-   * @param res 
-   * @param next 
+   *
+   * @param req
+   * @param res
+   * @param next
    */
   logout(req: Request, res: Response, next: NextFunction): Promise<void>;
 
   /**
-   * 
-   * @param req 
-   * @param res 
-   * @param next 
+   *
+   * @param req
+   * @param res
+   * @param next
    */
   authenticate(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
@@ -70,7 +46,7 @@ export interface IAuthenticationController {
  * Authentication Service interface - provides the hand-off between the router-controller
  * chain and the provider specific (ie. Azure) authenication code
  */
-export interface IAuthenticationService {
+export interface IAccessService {
   /**
    *
    * @param username
@@ -93,9 +69,9 @@ export interface IAuthenticationService {
 }
 
 /**
- * Authenticator interface - handles actual authentication logic in the middleware
+ * Access interface - handles actual access control logic in the middleware; implemented for each provider
  */
-export interface IAuthentication {
+export interface IAccess {
   /**
    * Login user with username and password
    * @param username - User's username
