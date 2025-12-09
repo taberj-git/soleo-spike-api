@@ -22,11 +22,20 @@ export class StorageController implements IStorageController {
   }
 
   /**
-   * upload file from client to the storage point
-   * @param req
-   * @param res
-   * @param next
-   */
+     * Handle file upload to storage system
+     * 
+     * Processes multipart/form-data file upload, performs security validation,
+     * generates unique filename with timestamp prefix, and stores file using
+     * the configured storage provider (local or cloud).
+     * 
+     * @param req - Express Request object containing uploaded file in req.file (populated by multer middleware)
+     * @param res - Express Response object for sending upload result with file metadata
+     * @param next - Express NextFunction for error handling middleware chain
+     * @returns Promise that resolves when file upload processing is complete
+     * @throws {Error} If no file is uploaded (400 status)
+     * @throws {Error} If file validation fails (400 status)
+     * @throws {Error} If storage operation fails (500 status)
+     */
   uploadFileToStorage = async (
     req: Request,
     res: Response,
@@ -89,10 +98,20 @@ export class StorageController implements IStorageController {
   };
 
   /**
-   * Handle file download from the filestore to the client
-   * @param req - Express request object
-   * @returns Promise<ILogoutResponse>
-   */
+     * Handle file download from storage system
+     * 
+     * Retrieves requested file from storage provider and streams it to the client
+     * with appropriate Content-Disposition and Content-Type headers. Filename
+     * must be provided in route parameters.
+     * 
+     * @param req - Express Request object containing filename in req.params.filename
+     * @param res - Express Response object for streaming file download to client
+     * @param next - Express NextFunction for error handling middleware chain
+     * @returns Promise that resolves when file download streaming begins
+     * @throws {Error} If no filename is provided (400 status)
+     * @throws {Error} If filename is invalid or contains path traversal (400 status)
+     * @throws {Error} If file not found or storage operation fails (500 status)
+     */
   downloadFileFromStorage = async (
     req: Request,
     res: Response,
