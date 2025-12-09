@@ -1,6 +1,6 @@
 import type { IAccess } from '../interfaces/access.interface.js';
 import type { ILogger } from '../interfaces/logger.interface.js';
-import { AzureAuthenticator } from '../middleware/access/azure-access.js';
+import { AzureAccess } from '../middleware/access/azure-access.js';
 import { getServerConfig } from "../../config/index.js";
 
 /**
@@ -18,10 +18,10 @@ export class AuthFactory {
 
     switch (provider) {
       case 'AZURE':
-        return new AzureAuthenticator(logger);
+        return new AzureAccess(logger);
 
       default:
-        return new AzureAuthenticator(logger);
+        return new AzureAccess(logger);
     }
   }
 }
