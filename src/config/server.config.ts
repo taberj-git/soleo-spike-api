@@ -16,7 +16,10 @@ export interface ServerConfig {
   };
   localStoragePath: string;
   storageProvider: string;
-  integrityMode: IntegrityMode
+  integrityMode: IntegrityMode;
+  maxFileSize: Number;
+  accessProvider: string;
+  deployment: string;
 }
 
 /**
@@ -29,13 +32,19 @@ export function getServerConfig(): ServerConfig {
   const LOCAL_STORAGE_PATH = process.env['LOCAL_STORAGE_PATH'] || os.tmpdir();
   const STORAGE_PROVIDER = process.env['STORAGE_PROVIDER'] || 'LOCAL'
   const INTEGRITY_MODE = (process.env['INTEGRITY_CHECK'] || 'SIZE') as IntegrityMode;
+  const MAX_FILE_SIZE = (process.env['MAX_FILE_SIZE'] || 104857600) as number; //100MB
+  const ACCESS_PROVIDER = process.env['ACCESS_PROVIDER'] || 'AZURE';
+  const DEPLOYMENT = process.env['DEPLOYMENT'] || 'TEST';
 
   const config: ServerConfig = {
     port: PORT,
     useHttps: USE_HTTPS,
     localStoragePath: LOCAL_STORAGE_PATH,
     storageProvider: STORAGE_PROVIDER,
-    integrityMode: INTEGRITY_MODE
+    integrityMode: INTEGRITY_MODE,
+    maxFileSize: MAX_FILE_SIZE,
+    accessProvider: ACCESS_PROVIDER,
+    deployment: DEPLOYMENT
   };
 
   // Load HTTPS certificates if HTTPS is enabled

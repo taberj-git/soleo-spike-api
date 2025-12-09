@@ -1,29 +1,29 @@
 import express from 'express';
 import type { ILogger } from '../../../core/interfaces/logger.interface.js';
-import type { IAuthenticationController } from '../../../core/interfaces/auth.interface.js'
-import { getErrorMessage } from "../../../core/util/error.util.js";
+import type { IAccessController } from '../../../core/interfaces/access.interface.js'
+import { getErrorMessage } from "../../../core/utilities/error.utility.js"
 
 /**
- * Create and configure authentication router
+ * Create and configure access router
  * @param logger - Logger instance
  * @param controller - Auth controller instance
  * @returns Express router
  */
-export function createAuthRouter(logger: ILogger, controller: IAuthenticationController) {
-  logger.trace("Enter auth.routes.createAuthRouter");
+export function createAccessRouter(logger: ILogger, controller: IAccessController) {
+  logger.trace("Enter access.routes.createAccessRouter");
   const router = express.Router();
 
   /**
    * Login endpoint
    */
   router.post('/login', async (req, res, next) => {
-    logger.trace('auth.routes /login route hit, forwarding to controller');
+    logger.trace('access.routes /login route hit, forwarding to controller');
     try {
       const response = await controller.login(req, res, next);
       res.json(response);
     } catch (err) {
       const message = getErrorMessage(err);
-      logger.error(`auth.routes /login error: ${message}`);
+      logger.error(`access.routes /login error: ${message}`);
       res.status(500).json({ success: false, error: `login failed: ${message}` });
     }
   });
@@ -32,13 +32,13 @@ export function createAuthRouter(logger: ILogger, controller: IAuthenticationCon
    * Logout endpoint
    */
   router.post('/logout', async (req, res, next) => {
-    logger.trace('auth.routes /logout route hit, forwarding to controller');
+    logger.trace('access.routes /logout route hit, forwarding to controller');
     try {
       const response = await controller.logout(req, res, next);
       res.json(response);
     } catch (err) {
       const message = getErrorMessage(err);
-      logger.error(`auth.routes /logout error: ${message}`);
+      logger.error(`access.routes /logout error: ${message}`);
       res.status(500).json({ success: false, error: `Logout failed: ${message}` });
     }
   });
@@ -47,13 +47,13 @@ export function createAuthRouter(logger: ILogger, controller: IAuthenticationCon
    * Authorize endpoint
    */
   router.post('/authorize', async (req, res, next) => {
-    logger.trace('auth.routes /authorize route hit, forwarding to controller');
+    logger.trace('access.routes /authorize route hit, forwarding to controller');
     try {
       const response = await controller.authenticate(req, res, next);
       res.json(response);
     } catch (err) {
       const message = getErrorMessage(err);
-      logger.error('auth.routes /authorize error:', err);
+      logger.error('access.routes /authorize error:', err);
       res.status(401).json({ success: false, error: `Authorization failed: ${message}` });
     }
   });

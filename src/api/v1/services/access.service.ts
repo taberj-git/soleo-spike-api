@@ -1,28 +1,30 @@
 import type {
-  IAuthentication,
+  IAccess,
+  IAccessService,
+} from "../../../core/interfaces/access.interface.js";
+import type {
   IAuthenticatonResponse,
   ILoginResponse,
-  ILogoutResponse,
-  IAuthenticationService,
-} from "../../../core/interfaces/auth.interface.js";
+  ILogoutResponse
+} from "../interfaces/access.response.interface.js";
 import type { ILogger } from "../../../core/interfaces/logger.interface.js";
-import { toError } from "../../../core/util/error.util.js";
+import { toError } from "../../../core/utilities/error.utility.js";
 
 /**
  * Authentication service handling business logic
  */
-export class AuthenticatorService implements IAuthenticationService {
-  authenticator: IAuthentication;
+export class AccessService implements IAccessService {
+  access: IAccess;
   logger: ILogger;
 
   /**
    * Constructor
-   * @param _logger - Logger instance
-   * @param _authenticator - Authenticator instance (provider specific)
+   * @param logger - Logger instance
+   * @param access - Access instance (provider specific - use factory to discover)
    */
-  constructor(_logger: ILogger, _authenticator: IAuthentication) {
-    this.authenticator = _authenticator;
-    this.logger = _logger;
+  constructor(logger: ILogger, access: IAccess) {
+    this.access = access;
+    this.logger = logger;
   }
 
   /**
@@ -34,24 +36,24 @@ export class AuthenticatorService implements IAuthenticationService {
     username: string,
     password: string
   ): Promise<ILoginResponse> => {
-    this.logger.trace(`enter AuthService.login with username ${username}`);
+    this.logger.trace(`enter AccessService.login with username ${username}`);
 
     let response: ILoginResponse;
     try {
-      response = (await this.authenticator.login(
+      response = (await this.access.login(
         username,
         password
       )) as ILoginResponse;
     } catch (error: unknown) {
       const err = toError(error); //convert to Error object
       this.logger.error(
-        "Exit AuthenticatorService.login caught an error:",
+        "Exit AccessService.login caught an error:",
         err.message
       );
       throw err;
     }
 
-    this.logger.trace("exit AuthService.login");
+    this.logger.trace("exit AccessService.login");
     return response;
   };
 
@@ -61,21 +63,21 @@ export class AuthenticatorService implements IAuthenticationService {
    * @returns Promise<ILogoutResponse>
    */
   async logout(userId: string): Promise<ILogoutResponse> {
-    this.logger.trace(`enter AuthService.logout with userId ${userId}`);
+    this.logger.trace(`enter AccessService.logout with userId ${userId}`);
 
     let response: ILogoutResponse;
     try {
-      response = (await this.authenticator.logout(userId)) as ILogoutResponse;
+      response = (await this.access.logout(userId)) as ILogoutResponse;
     } catch (error: unknown) {
       const err = toError(error); //convert to Error object
       this.logger.error(
-        "Exit AuthenticatorService.logout caught an error:",
+        "Exit Accesservice.logout caught an error:",
         err.message
       );
       throw err;
     }
 
-    this.logger.trace("exit AuthService.logout");
+    this.logger.trace("exit AccessService.logout");
     return response;
   }
 
@@ -88,24 +90,24 @@ export class AuthenticatorService implements IAuthenticationService {
     token: string,
     userId: string
   ): Promise<IAuthenticatonResponse> {
-    this.logger.trace(`enter AuthService.authenticate for ${userId}`);
+    this.logger.trace(`enter AccessService.authenticate for ${userId}`);
 
     let response: IAuthenticatonResponse;
     try {
-      response = (await this.authenticator.authenticate(
+      response = (await this.access.authenticate(
         token,
         userId
       )) as IAuthenticatonResponse;
     } catch (error: unknown) {
       const err = toError(error); //convert to Error object
       this.logger.error(
-        "Exit AuthenticatorService.authenticate caught an error:",
+        "Exit AccessService.authenticate caught an error:",
         err.message
       );
       throw err;
     }
 
-    this.logger.trace("exit AuthService.authenticate");
+    this.logger.trace("exit AccessService.authenticate");
     return response;
   }
 }

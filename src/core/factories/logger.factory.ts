@@ -11,7 +11,7 @@ export class LoggerFactory {
    * Get logger instance based on LOGGER_TYPE environment variable
    * @returns Logger instance
    */
-  static getLogger(): ILogger {
+  static getLoggerProvider(): ILogger {
     const loggerType = process.env['LOGGER_TYPE'] || 'winston';
 
     switch (loggerType) {
