@@ -8,7 +8,7 @@ import type {
   ILogoutResponse
 } from "../interfaces/access.response.interface.js";
 import type { ILogger } from "../../../core/interfaces/logger.interface.js";
-import { toError } from "../../../core/util/error.util.js";
+import { toError } from "../../../core/utilities/error.utility.js";
 
 /**
  * Authentication service handling business logic

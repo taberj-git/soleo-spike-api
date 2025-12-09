@@ -1,5 +1,5 @@
 import type { ILogger } from "../../interfaces/logger.interface.js";
-import type { IStorage, IStorageUploadResult } from "../../interfaces/store.interface.js";
+import type { IStorage, IStorageUploadResult } from "../../interfaces/storage.interface.js";
 import type { Readable } from "stream";
 
 /**
