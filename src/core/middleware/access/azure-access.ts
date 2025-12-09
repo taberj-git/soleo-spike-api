@@ -11,7 +11,7 @@ import type { ILogger } from '../../interfaces/logger.interface.js';
 /**
  * Azure-based authentication provider
  */
-export class AzureAuthenticator implements IAccess {
+export class AzureAccess implements IAccess {
   private logger: ILogger;
 
   constructor(_logger: ILogger) {
@@ -19,15 +19,15 @@ export class AzureAuthenticator implements IAccess {
   }
 
   /**
-   * Authenticate user with username and password
+   * Log in user with username and password
    * @param username - User's username
    * @param password - User's password
    * @returns Promise<ILoginResponse>
    */
   login(username: string, password: string): Promise<ILoginResponse> {
     this.logger.trace(
-      `enter AzureAuthenticator.login(username: ${username}) password ${password}`
-    ); // TODO REMOVE PW LOGGING BEFORE PRODUCTION
+      `enter AzureAuthenticator.login() for ${username}`
+    ); 
 
     const response: ILoginResponse = {
       success: true,
@@ -42,11 +42,11 @@ export class AzureAuthenticator implements IAccess {
 
   /**
    * Logout user
-   * @param userId - User's ID
+   * @param userId - User's ID - this maybe different from username; a system dependent ID 
    * @returns Promise<ILogoutResponse>
    */
   logout(userId: string): Promise<ILogoutResponse> {
-    this.logger.trace(`enter AzureAuthenticator.logout(userId: ${userId})`);
+    this.logger.trace(`enter AzureAuthenticator.logout() for ${userId}`);
 
     const response: ILogoutResponse = {
       success: true,
@@ -65,8 +65,7 @@ export class AzureAuthenticator implements IAccess {
    */
   authenticate(token: string, userId: string): Promise<IAuthenticatonResponse> {
     this.logger.trace(
-      `enter AzureAuthenticator.authenticate(token: ${token}, userId: ${userId})`
-    );
+      `enter AzureAuthenticator.authenticate() for ${userId}`);
 
     const response: IAuthenticatonResponse = {
       success: true,
