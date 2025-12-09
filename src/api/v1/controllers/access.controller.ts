@@ -25,10 +25,13 @@ export class AccessController implements IAccessController {
   }
 
   /**
-   * Handle login endpoint
-   * @param req - Express request object
-   * @returns Promise<ILoginResponse>
-   */
+     * Handle user login request
+     * 
+     * @param req - Express Request object containing username and password in body
+     * @param res - Express Response object for sending login response with auth token
+     * @param next - Express NextFunction for error handling middleware chain
+     * @returns Promise that resolves when login processing is complete
+     */
   login = async (
     req: Request,
     res: Response,
@@ -111,10 +114,13 @@ export class AccessController implements IAccessController {
   };
 
   /**
-   * Handle logout endpoint
-   * @param req - Express request object
-   * @returns Promise<ILogoutResponse>
-   */
+     * Handle user logout request
+     * 
+     * @param req - Express Request object containing user-id in headers
+     * @param res - Express Response object for sending logout confirmation
+     * @param next - Express NextFunction for error handling middleware chain
+     * @returns Promise that resolves when logout processing is complete
+     */
   logout = async (
     req: Request,
     res: Response,
@@ -138,11 +144,14 @@ export class AccessController implements IAccessController {
     this.logger.trace("exit AccessController.logout");
   };
 
-  /**
-   * Handle authentication endpoint
-   * @param req - Express request object
-   * @returns Promise<IAuthResponse>
-   */
+   /**
+     * Verify user authentication token
+     * 
+     * @param req - Express Request object containing Authorization header with Bearer token and user-id header
+     * @param res - Express Response object for sending authentication verification result
+     * @param next - Express NextFunction for error handling middleware chain
+     * @returns Promise that resolves when authentication verification is complete
+     */
   authenticate = async (
     req: Request,
     res: Response,

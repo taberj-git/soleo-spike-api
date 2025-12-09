@@ -73,7 +73,7 @@ export interface IAccessService {
  */
 export interface IAccess {
   /**
-   * Login user with username and password
+   * Log in user with username and password
    * @param username - User's username
    * @param password - User's password
    */
