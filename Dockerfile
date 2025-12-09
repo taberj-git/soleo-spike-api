@@ -23,7 +23,7 @@ RUN npm install --production
 COPY --from=builder /app/dist ./dist
 
 # The internal port (HTTP)
-EXPOSE 80
+EXPOSE 8001
 
 # Start the compiled JS
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/server.js"]
