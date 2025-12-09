@@ -1,6 +1,7 @@
 import type { IAccess } from '../interfaces/access.interface.js';
 import type { ILogger } from '../interfaces/logger.interface.js';
 import { AzureAuthenticator } from '../middleware/access/azure-access.js';
+import { getServerConfig } from "../../config/index.js";
 
 /**
  * Factory for creating authenticator instances
@@ -12,10 +13,11 @@ export class AuthFactory {
    * @returns Authenticator instance
    */
   static getAuthenticator(logger: ILogger): IAccess {
-    const authType = process.env['AUTH_TYPE'] || 'azure';
+   
+    const provider = getServerConfig().accessProvider;
 
-    switch (authType) {
-      case 'azure':
+    switch (provider) {
+      case 'AZURE':
         return new AzureAuthenticator(logger);
 
       default:

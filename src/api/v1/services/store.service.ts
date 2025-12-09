@@ -4,12 +4,13 @@ import type {
   IStorage,
   IStorageService,
   IStorageUploadResult,
-} from "../../../core/interfaces/store.interface.js";
+} from "../../../core/interfaces/storage.interface.js";
 import type { ILogger } from "../../../core/interfaces/logger.interface.js";
-import { toError } from "../../../core/util/error.util.js";
+
 import fs from 'fs';
 import path from 'path';
 import { getServerConfig } from '../../../config/index.js';
+import { toError } from '../../../core/utilities/error.utility.js';
 
 export class StorageService implements IStorageService {
   storage: IStorage;
