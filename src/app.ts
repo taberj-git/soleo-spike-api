@@ -8,7 +8,7 @@ import { corsConfig } from "./config/index.js";
 import { LoggerFactory } from "./core/factories/logger.factory.js";
 import { AuthFactory } from "./core/factories/access.factory.js";
 import { AuthenticatorService } from "./api/v1/services/auth.service.js";
-import { AuthenticatorController } from "./api/v1/controllers/auth.controller.js";
+import { AccessController } from "./api/v1/controllers/auth.controller.js";
 import { createAccessRouter } from "./api/v1/routes/access.routes.js";
 import { createHealthRouter } from "./api/v1/routes/health.routes.js";
 
@@ -47,7 +47,7 @@ export function createApp() {
   // Initialize authentication components
   const authenticator = AuthFactory.getAuthenticator(logger);
   const authService = new AuthenticatorService(logger, authenticator);
-  const authController = new AuthenticatorController(logger, authService);
+  const authController = new AccessController(logger, authService);
 
   // Root endpoint
   app.get("/", (req, res) => {
