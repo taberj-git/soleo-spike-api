@@ -4,12 +4,13 @@ import type {
   IStorage,
   IStorageService,
   IStorageUploadResult,
-} from "../../../core/interfaces/store.interface.js";
+} from "../../../core/interfaces/storage.interface.js";
 import type { ILogger } from "../../../core/interfaces/logger.interface.js";
-import { toError } from "../../../core/util/error.util.js";
+
 import fs from 'fs';
 import path from 'path';
 import { getServerConfig } from '../../../config/index.js';
+import { toError } from '../../../core/utilities/error.utility.js';
 
 export class StorageService implements IStorageService {
   storage: IStorage;
@@ -31,13 +32,18 @@ export class StorageService implements IStorageService {
     }
   }
 
-  /**
-   * 
-   * @param filename 
-   * @param filestream 
-   * @param next 
-   * @returns 
-   */
+   /**
+     * Upload file to storage provider
+     * 
+     * Delegates file storage operation to the configured storage provider
+     * (LocalStorage or AzureStorage) and returns metadata about the uploaded file.
+     * 
+     * @param filename - Target filename for storage (should include timestamp prefix from controller)
+     * @param filestream - Readable stream containing file data to upload
+     * @param next - Express NextFunction for error handling (architectural issue - should be removed)
+     * @returns Promise resolving to upload result containing filename, path, size, timestamp, and optional hash
+     * @throws {Error} If storage provider operation fails
+     */
   async uploadFileToStorage(filename: string, filestream: Readable, next: NextFunction ): Promise<IStorageUploadResult> {
     this.logger.trace(`enter StorageService.uploadFileToStorage(${filename})`);
     
@@ -62,10 +68,16 @@ export class StorageService implements IStorageService {
   }
 
   /**
-   * 
-   * @param filename 
-   * @param next 
-   */
+     * Download file from storage provider
+     * 
+     * Retrieves file from the configured storage provider and returns it as a
+     * Readable stream for piping to the HTTP response.
+     * 
+     * @param filename - Name of file to retrieve from storage
+     * @param next - Express NextFunction for error handling (architectural issue - should be removed)
+     * @returns Promise resolving to Readable stream containing file data
+     * @throws {Error} If file not found or storage provider operation fails
+     */
   async downloadFileFromStorage(filename: string, next: NextFunction): Promise<Readable> {
     this.logger.trace(`enter StorageService.downloadFileFromStorage(${filename})`);
 

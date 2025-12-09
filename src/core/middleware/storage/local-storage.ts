@@ -1,7 +1,7 @@
 // src/services/storage/LocalStorage.ts
 import fs from "fs";
 import path from "path";
-import type { IStorage, IStorageUploadResult } from "../../interfaces/store.interface.js";
+import type { IStorage, IStorageUploadResult } from "../../interfaces/storage.interface.js";
 import type { Readable } from "stream";
 import type { ILogger } from "../../interfaces/logger.interface.js";
 import { getServerConfig } from '../../../config/index.js';

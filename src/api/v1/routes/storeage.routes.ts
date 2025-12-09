@@ -1,6 +1,6 @@
 import express from 'express';
 import type { ILogger } from '../../../core/interfaces/logger.interface.js';
-import type { IStorageController } from '../../../core/interfaces/store.interface.js'
+import type { IStorageController } from '../../../core/interfaces/storage.interface.js'
 import { getErrorMessage } from "../../../core/util/error.util.js";
 
 /**
