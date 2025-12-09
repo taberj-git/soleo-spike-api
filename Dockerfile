@@ -1,0 +1,29 @@
+# --- Stage 1: Builder ---
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Install dependencies (including devDependencies for TypeScript)
+COPY package*.json ./
+RUN npm install
+
+# Copy source and build
+COPY . .
+RUN npm run build
+# (Assumes your tsconfig.json outputs to ./dist)
+
+# --- Stage 2: Runtime ---
+FROM node:18-alpine
+WORKDIR /app
+
+# Install ONLY production dependencies
+COPY package*.json ./
+RUN npm install --production
+
+# Copy built JS files from the Builder stage
+COPY --from=builder /app/dist ./dist
+
+# The internal port (HTTP)
+EXPOSE 8001
+
+# Start the compiled JS
+CMD ["node", "dist/server.js"]
