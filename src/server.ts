@@ -4,7 +4,7 @@ import { createApp } from './app.js';
 import { LoggerFactory } from './core/factories/logger.factory.js';
 import { getServerConfig } from './config/server.config.js';
 
-const logger = LoggerFactory.getLogger();
+const logger = LoggerFactory.getLoggerProvider();
 const app = createApp();
 const config = getServerConfig();
 
