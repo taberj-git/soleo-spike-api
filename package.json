@@ -21,7 +21,7 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "npm run clean && tsc",
     "clean": "rm -rf dist",
     "test": "NODE_OPTIONS='--experimental-vm-modules --localstorage-file=/tmp/jest-ls' jest",
     "test:watch": "NODE_OPTIONS='--experimental-vm-modules --localstorage-file=/tmp/jest-ls' jest --watch",

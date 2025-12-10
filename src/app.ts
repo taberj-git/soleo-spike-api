@@ -34,6 +34,7 @@ logger.trace("API: Initializing application...");
  */
   export function createApp() {
     const app = express();
+    const config = getServerConfig();
 
     /**
      * NOTHING ABOVE THIS!  HELMET CONFIGURATION MUST COME FIRST!
@@ -84,7 +85,8 @@ logger.trace("API: Initializing application...");
     //comms configuration
     app.use(cors(corsConfig));
     app.use(express.json());
-    app.set("trust proxy", true);
+    // Set trust proxy based on deployment environment (security critical for rate limiting)
+    app.set("trust proxy", config.trustProxy);
 
     //set up logging 
     app.use((req, _res, next) => {
