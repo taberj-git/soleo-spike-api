@@ -1,7 +1,8 @@
 import express from 'express';
 import type { ILogger } from '../../../core/interfaces/logger.interface.js';
 import type { IStorageController } from '../../../core/interfaces/storage.interface.js'
-import { getErrorMessage } from "../../../core/util/error.util.js";
+import { getErrorMessage } from '../../../core/utilities/error.utility.js';
+import { uploadLimiter, downloadLimiter } from '../../../core/middleware/rate-limit.middleware.js';
 
 /**
  * Create and configure storage router
@@ -16,7 +17,7 @@ export function createStoreRouter(logger: ILogger, controller: IStorageControlle
   /**
    * Upload endpoint to send files to the storage system
    */
-  router.post('/upload', async (req, res, next) => {
+  router.post('/upload', uploadLimiter, async (req, res, next) => {
     logger.trace('auth.routes /upload route hit, forwarding to controller');
     try {
       const response = await controller.uploadFileToStorage(req, res, next);
@@ -31,7 +32,7 @@ export function createStoreRouter(logger: ILogger, controller: IStorageControlle
   /**
    * Download endpoint to get files from the storage system
    */
-  router.get('/download', async (req, res, next) => {
+  router.get('/download', downloadLimiter, async (req, res, next) => {
     logger.trace('store.routes /download route hit, forwarding to controller');
     try {
       const response = await controller.downloadFileFromStorage(req, res, next);

@@ -21,10 +21,10 @@ export class AzureAccess implements IAccess {
   /**
    * Log in user with username and password
    * @param username - User's username
-   * @param password - User's password
+   * @param _password - User's password (unused in mock)
    * @returns Promise<ILoginResponse>
    */
-  login(username: string, password: string): Promise<ILoginResponse> {
+  login(username: string, _password: string): Promise<ILoginResponse> {
     this.logger.trace(
       `enter AzureAuthenticator.login() for ${username}`
     ); 
@@ -59,11 +59,11 @@ export class AzureAccess implements IAccess {
 
   /**
    * Verify authentication token
-   * @param token - Authentication token
+   * @param _token - Authentication token (unused in mock)
    * @param userId - User's ID
    * @returns Promise<IAuthResponse>
    */
-  authenticate(token: string, userId: string): Promise<IAuthenticatonResponse> {
+  authenticate(_token: string, userId: string): Promise<IAuthenticatonResponse> {
     this.logger.trace(
       `enter AzureAuthenticator.authenticate() for ${userId}`);
 
