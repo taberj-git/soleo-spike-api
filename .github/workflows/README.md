@@ -165,8 +165,10 @@ The build process is configured in `tsconfig.json`:
 
 Tests run with special Node.js options for ES modules support:
 ```bash
-NODE_OPTIONS='--experimental-vm-modules --localstorage-file=/tmp/jest-ls'
+NODE_OPTIONS='--experimental-vm-modules' node --localstorage-file=/tmp/jest-ls
 ```
+
+**Note**: The `--localstorage-file` flag cannot be set via `NODE_OPTIONS` due to Node.js security restrictions, so it's passed directly to the node command.
 
 Available test scripts:
 - `npm test` - Run tests once
