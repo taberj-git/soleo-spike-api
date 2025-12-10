@@ -1,3 +1,9 @@
+import {
+    accessLimiter,
+    apiLimiter,
+    uploadLimiter,
+    downloadLimiter
+  } from './core/middleware/rate-limit.middleware.js';
 import express, {
   type Request,
   type Response,
@@ -16,6 +22,7 @@ import { StorageController } from "./api/v1/controllers/storage.controller.js";
 import { createStoreRouter } from "./api/v1/routes/storeage.routes.js";
 import { StorageFactory } from "./core/factories/storage.factory.js";
 import { StorageService } from "./api/v1/services/store.service.js";
+import { uploadLimiter } from './core/middleware/rate-limit.middleware';
 
 const logger = LoggerFactory.getLoggerProvider();
 
@@ -48,6 +55,18 @@ logger.trace("API: Initializing application...");
     });
 
     // =============================================================================
+    // 2.5 RATE LIMITING MIDDLEWARE (before routes)
+    // =============================================================================
+
+    // Apply stricter rate limiting to authentication endpoints
+    app.use('/api/v1/access/login', accessLimiter);
+    app.use('/api/v1/storage/upload', uploadLimiter);
+    app.use('/api/v1/storage/download', downloadLimiter);
+
+    // Apply general API rate limiting to all API routes
+    app.use('/api/v1', apiLimiter);
+
+    // =============================================================================
     // 3. INITIALIZE DEPENDENCIES (before routes that use them)
     // =============================================================================
     const access = AccessFactory.getAccessProvider(logger);
@@ -73,7 +92,7 @@ logger.trace("API: Initializing application...");
     const healthRoutes = createHealthRouter(logger);
     app.use("/health", healthRoutes);
 
-    // API v1 authentication routes
+    // API v1 access routes
     logger.info("App: Mounting /api/v1/access routes...");
     const accessRoutes = createAccessRouter(logger, accessController);
     app.use("/api/v1/access", accessRoutes);
