@@ -20,6 +20,7 @@ export interface ServerConfig {
   maxFileSize: Number;
   accessProvider: string;
   deployment: string;
+  trustProxy: boolean | number | string;
 }
 
 /**
@@ -36,6 +37,24 @@ export function getServerConfig(): ServerConfig {
   const ACCESS_PROVIDER = process.env['ACCESS_PROVIDER'] || 'AZURE';
   const DEPLOYMENT = process.env['DEPLOYMENT'] || 'TEST';
 
+  // Trust proxy configuration for rate limiting security
+  // In production with reverse proxy (nginx, load balancer): trust 1 hop
+  // In development/test: don't trust proxies (prevents rate limit bypass)
+  const TRUST_PROXY_ENV = process.env['TRUST_PROXY'] ||
+    (DEPLOYMENT === 'PRODUCTION' ? '1' : 'false');
+
+  let trustProxy: boolean | number | string;
+  if (TRUST_PROXY_ENV === 'false') {
+    trustProxy = false;
+  } else if (TRUST_PROXY_ENV === 'true') {
+    trustProxy = true;
+  } else if (!isNaN(Number(TRUST_PROXY_ENV))) {
+    trustProxy = Number(TRUST_PROXY_ENV);
+  } else {
+    // Could be comma-separated IPs like "192.168.1.1,10.0.0.1"
+    trustProxy = TRUST_PROXY_ENV;
+  }
+
   const config: ServerConfig = {
     port: PORT,
     useHttps: USE_HTTPS,
@@ -44,7 +63,8 @@ export function getServerConfig(): ServerConfig {
     integrityMode: INTEGRITY_MODE,
     maxFileSize: MAX_FILE_SIZE,
     accessProvider: ACCESS_PROVIDER,
-    deployment: DEPLOYMENT
+    deployment: DEPLOYMENT,
+    trustProxy: trustProxy
   };
 
   // Load HTTPS certificates if HTTPS is enabled
