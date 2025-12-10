@@ -1,12 +1,13 @@
 import rateLimit from "express-rate-limit";
+import { rateLimitConfig } from "../../config/index.js";
 
 /**
  * Strict rate limiting for authentication endpoints
  * Prevents brute force attacks on login
  */
 export const accessLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 attempts per window
+  windowMs: rateLimitConfig.access.windowMs,
+  max: rateLimitConfig.access.max,
   message: {
     success: false,
     error: "Too many authentication attempts, please try again later",
@@ -22,8 +23,8 @@ export const accessLimiter = rateLimit({
  * Prevents DoS attacks on API endpoints
  */
 export const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
+  windowMs: rateLimitConfig.api.windowMs,
+  max: rateLimitConfig.api.max,
   message: {
     success: false,
     error: "Too many requests from this IP, please try again later",
@@ -37,8 +38,8 @@ export const apiLimiter = rateLimit({
  * Prevents abuse of file storage
  */
 export const uploadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: 10, // 10 uploads per hour
+  windowMs: rateLimitConfig.upload.windowMs,
+  max: rateLimitConfig.upload.max,
   message: {
     success: false,
     error: "Upload limit exceeded, please try again later",
@@ -52,8 +53,8 @@ export const uploadLimiter = rateLimit({
  * Prevents bandwidth abuse
  */
 export const downloadLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // 50 downloads per window
+ windowMs: rateLimitConfig.download.windowMs,
+  max: rateLimitConfig.download.max,
   message: {
     success: false,
     error: "Download limit exceeded, please try again later",
