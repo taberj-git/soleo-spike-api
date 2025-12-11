@@ -21,9 +21,9 @@ server.listen(config.port, () => {
   logger.info(`  Mode: ${config.useHttps ? 'HTTPS (Production/Testing)' : 'HTTP (Development)'}`);
   logger.info('Available endpoints:');
   logger.info('  GET  /');
-  logger.info('  POST /api/v1/auth/login');
-  logger.info('  POST /api/v1/auth/logout');
-  logger.info('  POST /api/v1/auth/authorize\n');
+  logger.info('  POST /api/v1/access/login');
+  logger.info('  POST /api/v1/access/logout');
+  logger.info('  POST /api/v1/access/authorize\n');
 });
 
 // Graceful shutdown
