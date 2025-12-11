@@ -174,7 +174,7 @@ export class StorageController implements IStorageController {
       fileStream.pipe(res);
 
       fileStream.on("error", (err) => {
-        console.error("Stream error:", err);
+        this.logger.error("Stream error:", err);
         res.end(); // Close connection
         next(err);
       });

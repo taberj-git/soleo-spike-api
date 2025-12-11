@@ -80,7 +80,7 @@ export class AccessController implements IAccessController {
 
     // Sanitize username (alphanumeric only)
     if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-      const err = new Error(`Invalid password format`);
+      const err = new Error(`Username contains invalid characters`);
       this.logger.error(
         "Exit AccessController.login caught an error:",
         err.message
@@ -89,7 +89,7 @@ export class AccessController implements IAccessController {
         .status(400)
         .json({
           success: false,
-          error: "Username contains invalid characters",
+          error: err.message,
         });
       next(err);
       return;
