@@ -1,0 +1,110 @@
+name: Auto-merge to Dev
+
+on:
+  pull_request_target:
+    types: [labeled, unlabeled, synchronize, opened, edited, ready_for_review, reopened, unlocked]
+    branches: [dev]
+  pull_request_review:
+    types: [submitted]
+    branches: [dev]
+  check_suite:
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  auto-merge:
+    name: Auto-merge PR to Dev
+    runs-on: ubuntu-latest
+
+    if: github.event.pull_request.base.ref == 'dev' || github.event.pull_request.base.ref == 'refs/heads/dev'
+
+    steps:
+      - name: Check if PR is ready to merge
+        id: check-ready
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request ||
+                      (await github.rest.pulls.get({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        pull_number: context.issue.number
+                      })).data;
+
+            console.log(`Checking PR #${pr.number}: ${pr.title}`);
+
+            const hasAutoMergeLabel = pr.labels.some(label =>
+              label.name === 'auto-merge' || label.name === 'automerge'
+            );
+
+            if (!hasAutoMergeLabel) {
+              console.log('PR does not have auto-merge label. Skipping.');
+              return false;
+            }
+
+            if (pr.state !== 'open' || pr.draft) {
+              console.log('PR is not open or is a draft. Skipping.');
+              return false;
+            }
+
+            const checkRuns = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.head.sha
+            });
+
+            const allChecksPassed = checkRuns.data.check_runs
+              .filter(check => check.status === 'completed')
+              .every(check => check.conclusion === 'success');
+
+            console.log(`All checks passed: ${allChecksPassed}`);
+            return allChecksPassed;
+
+      - name: Enable auto-merge
+        if: steps.check-ready.outputs.result == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request ||
+                      (await github.rest.pulls.get({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        pull_number: context.issue.number
+                      })).data;
+
+            try {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                merge_method: 'merge',
+                commit_title: `Merge PR #${pr.number}: ${pr.title}`,
+                commit_message: `${pr.body || ''}\n\n🤖 Auto-merged by GitHub Actions`
+              });
+
+              console.log(`✅ Successfully merged PR #${pr.number}`);
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: '✅ This PR has been automatically merged to `dev` after all checks passed.'
+              });
+            } catch (error) {
+              console.error('Failed to merge PR:', error);
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `⚠️ Auto-merge failed: ${error.message}\n\nPlease merge manually.`
+              });
+
+              throw error;
+            }
