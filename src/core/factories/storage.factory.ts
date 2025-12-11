@@ -11,11 +11,11 @@ export class StorageFactory {
 
     switch (provider.toUpperCase()) {
       case "AZURE":
+        logger.info("Using Azure Storage");
         return new AzureStorage(logger);
-        throw new Error("Azure not implemented yet");
       case "LOCAL":
       default:
-        console.log("Using Local Storage");
+        logger.info("Using Local Storage");
         return new LocalStorage(logger);
     }
 
