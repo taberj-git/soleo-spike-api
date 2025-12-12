@@ -48,9 +48,10 @@ echo ""
 
 # Deploy infrastructure using Bicep
 echo -e "${YELLOW}Step 3: Deploying Infrastructure (this may take 5-10 minutes)${NC}"
+echo -e "${GREEN}Using simplified deployment (no RBAC role assignments)${NC}"
 DEPLOYMENT_OUTPUT=$(az deployment group create \
   --resource-group "$RESOURCE_GROUP" \
-  --template-file "$(dirname "$0")/main.bicep" \
+  --template-file "$(dirname "$0")/main-no-rbac.bicep" \
   --parameters "$(dirname "$0")/parameters.json" \
   --query 'properties.outputs' \
   --output json)
